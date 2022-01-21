@@ -5,7 +5,8 @@ import {
   GenericMessageEvent,
   SlackActionMiddlewareArgs,
 } from '@slack/bolt';
-import { BotFunction, BotFunctionType } from '../../bot/utils/bot.interface';
+import BotHelper from '../../utils/bot.helper';
+import { BotFunction, BotFunctionType } from '../../utils/bot.interface';
 
 @Injectable()
 export class ApproveAction implements BotFunction {
@@ -22,7 +23,7 @@ export class ApproveAction implements BotFunction {
    * Approve
    * Color
    * #67C23A approve
-   * #F56C6C cancel
+   * #F56C6C deny
    * #F2C94C waiting
    * @param param0 SlackActionMiddlewareArgs & AllMiddlewareArgs
    *
@@ -35,17 +36,25 @@ export class ApproveAction implements BotFunction {
   }: SlackActionMiddlewareArgs<BlockAction> & AllMiddlewareArgs) {
     const message = <GenericMessageEvent>body.message;
     this.logger.debug(JSON.stringify(message.attachments[0], null, '  '));
+
+    // TODO qt number
     const qtId = new Date().toISOString();
+
+    const data = new BotHelper().dataToContextMrkdwn({
+      ts: message.ts,
+      qt: qtId,
+    });
+
+    this.logger.debug(data);
 
     const result = await client.views.open({
       trigger_id: body.trigger_id,
       view: {
         type: 'modal',
         callback_id: 'qt-approve-confirm',
-        // TODO qt number
         title: {
           type: 'plain_text',
-          text: qtId,
+          text: 'Approve',
           emoji: true,
         },
         submit: {
@@ -66,7 +75,7 @@ export class ApproveAction implements BotFunction {
             type: 'section',
             text: {
               type: 'plain_text',
-              text: `ต้องการยอมรับใบเสนอราคาเลขที่ ${qtId} หรือไม่`,
+              text: `ใบเสนอราคาเลขที่ ${qtId}`,
               emoji: true,
             },
           },
@@ -74,10 +83,14 @@ export class ApproveAction implements BotFunction {
             type: 'section',
             text: {
               type: 'plain_text',
-              text: message.ts,
+              text: `ต้องการยอมรับหรือไม่`,
               emoji: true,
             },
           },
+          {
+            type: 'divider',
+          },
+          ...data,
         ],
       },
     });

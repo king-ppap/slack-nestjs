@@ -2,9 +2,10 @@ import { Injectable } from '@nestjs/common';
 import {
   AllMiddlewareArgs,
   BlockAction,
+  GenericMessageEvent,
   SlackActionMiddlewareArgs,
 } from '@slack/bolt';
-import { BotFunction, BotFunctionType } from '../../bot/utils/bot.interface';
+import { BotFunction, BotFunctionType } from '../../utils/bot.interface';
 
 @Injectable()
 export class DenyAction implements BotFunction {
@@ -21,6 +22,9 @@ export class DenyAction implements BotFunction {
     client,
   }: SlackActionMiddlewareArgs<BlockAction> & AllMiddlewareArgs) {
     try {
+      const message = <GenericMessageEvent>body.message;
+      const qtId = new Date().toISOString();
+
       // Call views.open with the built-in client
       const result = await client.views.open({
         trigger_id: body.trigger_id,
@@ -28,10 +32,14 @@ export class DenyAction implements BotFunction {
         view: {
           type: 'modal',
           // View identifier
-          callback_id: 'view_1',
+          callback_id: 'qt-deny-confirm',
           title: {
             type: 'plain_text',
-            text: 'Modal title',
+            text: 'Deny',
+          },
+          submit: {
+            type: 'plain_text',
+            text: 'Submit',
           },
           blocks: [
             {
@@ -62,11 +70,15 @@ export class DenyAction implements BotFunction {
                 multiline: true,
               },
             },
+            {
+              type: 'section',
+              text: {
+                type: 'plain_text',
+                text: message.ts,
+                emoji: true,
+              },
+            },
           ],
-          submit: {
-            type: 'plain_text',
-            text: 'Submit',
-          },
         },
       });
       ack();
