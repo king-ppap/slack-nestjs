@@ -26,15 +26,15 @@ export default class BotHelper {
             `Reading Slack Bot Function '${value.help.type}': ${value.help.id}`,
           );
           if (value.help.type === 'view') {
-            app.view(value.help.id, value.handler);
+            app.view(value.help.id, value.handler.bind(value));
           } else if (value.help.type === 'event') {
-            app.event(value.help.id, value.handler);
+            app.event(value.help.id, value.handler.bind(value));
           } else if (value.help.type === 'action') {
-            app.action(value.help.id, value.handler);
+            app.action(value.help.id, value.handler.bind(value));
           } else if (value.help.type === 'options') {
-            app.options(value.help.id, value.handler);
+            app.options(value.help.id, value.handler.bind(value));
           } else if (value.help.type === 'shortcut') {
-            app.shortcut(value.help.id, value.handler);
+            app.shortcut(value.help.id, value.handler.bind(value));
           }
           if (index === array.length - 1) resolve();
         }),
