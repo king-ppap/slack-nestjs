@@ -34,6 +34,28 @@ export default class BotHelper {
     }
   }
 
+  /**
+   * Convert data to context markdown
+   * You mush paste at the end of blocks array
+   * @example
+   * const data = new BotHelper().dataToContextMrkdwn({
+   *  ts: message.ts,
+   *  qt: qtId,
+   * });
+   * const result = await client.views.open({
+   *    trigger_id: body.trigger_id,
+   *    view: {
+   *      blocks: [
+   *        {
+   *          type: 'divider',
+   *        },
+   *        ...data,
+   *      ],
+   *    }
+   *  });
+   * @param data Data you want to parse to the message.
+   * @returns Array of the last content.
+   */
   public dataToContextMrkdwn(data: any): Array<any> {
     return [
       {
@@ -48,6 +70,11 @@ export default class BotHelper {
     ];
   }
 
+  /**
+   * Get data from blocks
+   * @param blocks Array of the block
+   * @returns Data from `dataToContextMrkdwn`
+   */
   public getDataFromMessage(blocks: Array<any>): any {
     return JSON.parse(
       Buffer.from(
