@@ -9,7 +9,7 @@ import { BotFunction, BotFunctionType } from '../../bot/utils/bot.interface';
 @Injectable()
 export class DenyAction implements BotFunction {
   public readonly help = {
-    id: 'QTdeny',
+    id: 'qt-deny',
     type: BotFunctionType.ACTION,
     name: 'Deny quotation',
     description: 'Deny quotation',
@@ -23,7 +23,6 @@ export class DenyAction implements BotFunction {
     try {
       // Call views.open with the built-in client
       const result = await client.views.open({
-        // Pass a valid trigger_id within 3 seconds of receiving it
         trigger_id: body.trigger_id,
         // View payload
         view: {

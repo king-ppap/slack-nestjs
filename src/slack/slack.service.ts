@@ -67,7 +67,7 @@ export class SlackService {
                       emoji: true,
                     },
                     value: 'idOfQt',
-                    action_id: 'QTapprove',
+                    action_id: 'qt-approve',
                   },
                   {
                     type: 'button',
@@ -78,7 +78,7 @@ export class SlackService {
                       emoji: true,
                     },
                     value: 'idOfQt',
-                    action_id: 'QTdeny',
+                    action_id: 'qt-deny',
                   },
                 ],
               },

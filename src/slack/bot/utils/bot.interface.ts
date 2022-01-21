@@ -1,6 +1,5 @@
 import {
   AllMiddlewareArgs,
-  BlockAction,
   SlackAction,
   SlackActionMiddlewareArgs,
   SlackCommandMiddlewareArgs,

@@ -1,6 +1,6 @@
 import { Module, OnApplicationBootstrap, Type } from '@nestjs/common';
 import { SlackService } from './slack.service';
-import * as quotationAction from './quotation/actions';
+import * as quotationAction from './quotation';
 import { HttpModule } from '@nestjs/axios';
 
 function createSlackFunctionsProviders(functions: Type<any>[]) {
