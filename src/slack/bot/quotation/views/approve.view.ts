@@ -1,6 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { AllMiddlewareArgs, GenericMessageEvent, SlackViewMiddlewareArgs } from '@slack/bolt';
-import { BotFunction, BotFunctionType } from '../../bot/utils/bot.interface';
+import {
+  AllMiddlewareArgs,
+  GenericMessageEvent,
+  SlackViewMiddlewareArgs,
+} from '@slack/bolt';
+import BotHelper from '../../utils/bot.helper';
+import { BotFunction, BotFunctionType } from '../../utils/bot.interface';
 
 @Injectable()
 export class ApproveConfirmView implements BotFunction {
@@ -17,7 +22,7 @@ export class ApproveConfirmView implements BotFunction {
    * Approve
    * Color
    * #67C23A approve
-   * #F56C6C cancel
+   * #F56C6C deny
    * #F2C94C waiting
    * @param param0 SlackActionMiddlewareArgs & AllMiddlewareArgs
    *
@@ -28,15 +33,21 @@ export class ApproveConfirmView implements BotFunction {
     client,
   }: SlackViewMiddlewareArgs & AllMiddlewareArgs) {
     // const message = <GenericMessageEvent>body.message;
-    this.logger.debug(body.view.title);
-    const ts = body.view.blocks[2].text;
-    this.logger.debug(ts, process.env.START_CHANEL_ID);
+    const blocks = <Array<any>>body.view.blocks;
+
+    this.logger.debug(blocks[blocks.length - 1]);
+
+    const data = new BotHelper().getDataFromMessage(blocks);
+
+    this.logger.debug(data);
+
+    this.logger.debug(data.ts, process.env.START_CHANEL_ID);
     try {
       // Call the conversations.history method using the built-in WebClient
       const result = await client.conversations.history({
         channel: process.env.START_CHANEL_ID,
         // In a more realistic app, you may store ts data in a db
-        latest: ts,
+        latest: data.ts,
         // Limit results
         inclusive: true,
         limit: 1,
@@ -49,7 +60,7 @@ export class ApproveConfirmView implements BotFunction {
 
       await client.chat.update({
         channel: process.env.START_CHANEL_ID,
-        ts: ts,
+        ts: data.ts,
         attachments: [
           {
             color: '#67C23A',

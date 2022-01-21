@@ -1,11 +1,6 @@
 import { App } from '@slack/bolt';
 import { Logger } from '@nestjs/common';
-import * as NodeFs from 'fs/promises';
 import { BotFunction, BotFunctionType } from './bot.interface';
-
-function isBotFunction(func: any) {
-  return func?.help?.type in BotFunctionType;
-}
 
 export default class BotHelper {
   public static async read(
@@ -14,12 +9,6 @@ export default class BotHelper {
     modules: Array<BotFunction>,
   ) {
     try {
-      // console.log(
-      //   `⚡️ Start reading classes`,
-      //   modules.map((x) => x.help.name),
-      // );
-      // const files = await NodeFs.readdir('./src/' + root + path);
-
       await new Promise<void>((resolve, rejects) =>
         modules.forEach(async (value, index, array) => {
           logger.debug(
@@ -43,5 +32,28 @@ export default class BotHelper {
       console.log(error);
       throw error;
     }
+  }
+
+  public dataToContextMrkdwn(data: any): Array<any> {
+    return [
+      {
+        type: 'context',
+        elements: [
+          {
+            type: 'mrkdwn',
+            text: Buffer.from(JSON.stringify(data)).toString('base64'),
+          },
+        ],
+      },
+    ];
+  }
+
+  public getDataFromMessage(blocks: Array<any>): any {
+    return JSON.parse(
+      Buffer.from(
+        blocks[blocks.length - 1].elements[0].text,
+        'base64',
+      ).toString(),
+    );
   }
 }
