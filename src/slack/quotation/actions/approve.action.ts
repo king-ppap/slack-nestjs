@@ -1,12 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
   AllMiddlewareArgs,
-  AttachmentAction,
-  BasicElementAction,
   BlockAction,
-  ButtonAction,
   GenericMessageEvent,
-  MessageAttachment,
   SlackActionMiddlewareArgs,
 } from '@slack/bolt';
 import { BotFunction, BotFunctionType } from '../../bot/utils/bot.interface';
@@ -40,6 +36,7 @@ export class ApproveAction implements BotFunction {
     const message = <GenericMessageEvent>body.message;
     this.logger.debug(JSON.stringify(message.attachments[0], null, '  '));
     const qtId = new Date().toISOString();
+
     const result = await client.views.open({
       trigger_id: body.trigger_id,
       view: {
@@ -70,6 +67,14 @@ export class ApproveAction implements BotFunction {
             text: {
               type: 'plain_text',
               text: `ต้องการยอมรับใบเสนอราคาเลขที่ ${qtId} หรือไม่`,
+              emoji: true,
+            },
+          },
+          {
+            type: 'section',
+            text: {
+              type: 'plain_text',
+              text: message.ts,
               emoji: true,
             },
           },
