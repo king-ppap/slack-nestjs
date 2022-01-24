@@ -59,14 +59,16 @@ export class ApproveConfirmView implements BotFunction {
       this.logger.debug(message.text);
 
       await client.chat.update({
-        channel: process.env.START_CHANEL_ID,
+        channel: process.env.QT_CHANEL_ID,
         ts: data.ts,
         attachments: [
           {
             color: '#67C23A',
             blocks: [
-              ...message.attachments[0].blocks.slice(0, 3),
-              ...message.attachments[0].blocks.slice(4),
+              ...message.attachments[0].blocks.slice(
+                0,
+                message.attachments[0].blocks.length,
+              ),
             ],
           },
         ],

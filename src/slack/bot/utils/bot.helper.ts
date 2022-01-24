@@ -62,7 +62,7 @@ export default class BotHelper {
         type: 'context',
         elements: [
           {
-            type: 'mrkdwn',
+            type: 'plain_text',
             text: Buffer.from(JSON.stringify(data)).toString('base64'),
           },
         ],
