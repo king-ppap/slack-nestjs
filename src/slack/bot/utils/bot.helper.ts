@@ -12,7 +12,7 @@ export default class BotHelper {
       await new Promise<void>((resolve, rejects) =>
         modules.forEach(async (value, index, array) => {
           logger.debug(
-            `Reading Slack Bot Function '${value.help.type}': ${value.help.id}`,
+            `✅ Reading Slack Bot Function '${value.help.type}': ${value.help.id}`,
           );
           if (value.help.type === 'view') {
             app.view(value.help.id, value.handler.bind(value));
