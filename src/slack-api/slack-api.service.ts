@@ -5,9 +5,10 @@ import { SlackService } from 'src/slack/slack.service';
 export class SlackApiService {
   constructor(private slackBotService: SlackService) {}
 
-  public async sendMessageApproveQuotation() {
+  public async sendMessageApproveQuotation(qtId: string) {
     this.slackBotService.appSlack.client.chat.postMessage({
       channel: process.env.QT_CHANEL_ID,
+      text: `ใบเสนอราคาเลขที่ ${qtId}`,
       attachments: [
         {
           color: '#F2C94C',
@@ -19,7 +20,7 @@ export class SlackApiService {
               type: 'header',
               text: {
                 type: 'plain_text',
-                text: `Test ${new Date().toISOString()}`,
+                text: `Test ${qtId}`,
                 emoji: true,
               },
             },
