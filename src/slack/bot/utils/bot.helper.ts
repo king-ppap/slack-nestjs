@@ -11,7 +11,7 @@ export default class BotHelper {
     try {
       await new Promise<void>((resolve, rejects) =>
         modules.forEach(async (value, index, array) => {
-          logger.debug(
+          logger.log(
             `✅ Reading Slack Bot Function '${value.help.type}': ${value.help.id}`,
           );
           if (value.help.type === 'view') {
