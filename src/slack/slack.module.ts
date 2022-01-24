@@ -2,6 +2,7 @@ import { Module, OnApplicationBootstrap, Type } from '@nestjs/common';
 import { SlackService } from './slack.service';
 import * as quotationAction from './bot/quotation';
 import { HttpModule } from '@nestjs/axios';
+import { SlackController } from './slack.controller';
 
 function createSlackFunctionsProviders(functions: Type<any>[]) {
   return [
@@ -24,6 +25,8 @@ function createSlackFunctionsProviders(functions: Type<any>[]) {
     SlackService,
     ...createSlackFunctionsProviders(Object.values(quotationAction)),
   ],
+  controllers: [SlackController],
+  exports: [SlackService],
 })
 export class SlackModule implements OnApplicationBootstrap {
   constructor(private service: SlackService) {}
