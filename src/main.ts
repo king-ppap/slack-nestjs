@@ -7,7 +7,7 @@ import {
 
 import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
-import { VersioningType } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 dotenv.config({ path: `../${process.env.NODE_ENV}.env` });
 
 async function bootstrap() {
@@ -36,6 +36,9 @@ async function bootstrap() {
   };
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document, customSwaggerOptions);
+
+  // Auto-validation
+  app.useGlobalPipes(new ValidationPipe());
 
   await app.listen(3000);
 }
