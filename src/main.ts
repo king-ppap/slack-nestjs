@@ -16,9 +16,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Versioning
-  app.enableVersioning({
-    type: VersioningType.URI,
-  });
+  app.enableVersioning();
+  // CORS
+  app.enableCors();
 
   // Swagger
   const title = 'Livingmobile Slack';
