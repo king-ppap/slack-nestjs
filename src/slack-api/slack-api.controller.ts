@@ -7,7 +7,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { QuotationDto } from './dto/quotation-id.dto';
+import { SendMessageQuotationDto } from './dto/quotation.dto';
 import { SlackApiService } from './slack-api.service';
 
 @Controller('slack-api')
@@ -18,8 +18,10 @@ export class SlackApiController {
   @Post('approve')
   @Version('1')
   @HttpCode(HttpStatus.NO_CONTENT)
-  sendMessageApproveQuotation(@Body() quotation: QuotationDto) {
+  async sendMessageApproveQuotation(
+    @Body() quotation: SendMessageQuotationDto,
+  ) {
     const qtId = quotation.qt_id;
-    this.slackApiService.sendMessageApproveQuotation(qtId);
+    await this.slackApiService.sendMessageApproveQuotation(qtId);
   }
 }
