@@ -17,9 +17,7 @@ export class SlackService {
     private moduleRef: ModuleRef,
     @Inject('SLACK_FUNCTIONS')
     private slackFunctions: Type<any>[],
-  ) {
-    this.logger.debug(slackFunctions);
-  }
+  ) {}
 
   public async start(): Promise<App> {
     // Create a new instance of the WebClient class with the token read from your environment variable
