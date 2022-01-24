@@ -34,18 +34,15 @@ export class ApproveConfirmView implements BotFunction {
   }: SlackViewMiddlewareArgs & AllMiddlewareArgs) {
     // const message = <GenericMessageEvent>body.message;
     const blocks = <Array<any>>body.view.blocks;
-
     this.logger.debug(blocks[blocks.length - 1]);
 
     const data = new BotHelper().getDataFromMessage(blocks);
+    this.logger.debug(data.ts, process.env.QT_CHANEL_ID);
 
-    this.logger.debug(data);
-
-    this.logger.debug(data.ts, process.env.START_CHANEL_ID);
     try {
       // Call the conversations.history method using the built-in WebClient
       const result = await client.conversations.history({
-        channel: process.env.START_CHANEL_ID,
+        channel: process.env.QT_CHANEL_ID,
         // In a more realistic app, you may store ts data in a db
         latest: data.ts,
         // Limit results
@@ -67,7 +64,7 @@ export class ApproveConfirmView implements BotFunction {
             blocks: [
               ...message.attachments[0].blocks.slice(
                 0,
-                message.attachments[0].blocks.length,
+                message.attachments[0].blocks.length - 1,
               ),
             ],
           },
