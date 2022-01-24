@@ -25,7 +25,7 @@ export class SlackService {
     // Create a new instance of the WebClient class with the token read from your environment variable
 
     await this.appSlack.start();
-    this.logger.debug('⚡️ Slack Bolt app started');
+    this.logger.log('⚡️ Slack Bolt app started');
 
     await BotHelper.read(
       this.logger,

@@ -1,4 +1,4 @@
-import { Controller, Post } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 
 @Controller('slack')
 export class SlackController {}
