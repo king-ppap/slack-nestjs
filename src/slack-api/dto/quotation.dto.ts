@@ -35,3 +35,7 @@ export class SendMessageQuotationDto {
   @ApiProperty()
   sale: string;
 }
+
+export class SendMessageQuotationViewDto extends SendMessageQuotationDto {
+  tz: string;
+}

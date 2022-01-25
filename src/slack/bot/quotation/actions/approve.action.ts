@@ -5,6 +5,7 @@ import {
   GenericMessageEvent,
   SlackActionMiddlewareArgs,
 } from '@slack/bolt';
+import { SendMessageQuotationViewDto } from 'src/slack-api/dto/quotation.dto';
 import BotHelper from '../../utils/bot.helper';
 import { BotFunction, BotFunctionType } from '../../utils/bot.interface';
 
@@ -32,26 +33,26 @@ export class ApproveAction implements BotFunction {
     ack,
     body,
     client,
-    respond,
   }: SlackActionMiddlewareArgs<BlockAction> & AllMiddlewareArgs) {
     const message = <GenericMessageEvent>body.message;
     this.logger.debug(JSON.stringify(message.attachments[0], null, '  '));
 
-    // TODO qt number
-    const qtId = new Date().toISOString();
-
-    const data = new BotHelper().dataToContextMrkdwn({
-      ts: message.ts,
-      qt: qtId,
-    });
-
+    const botHelper = new BotHelper();
+    const data = <SendMessageQuotationViewDto>(
+      botHelper.getDataFromMessage(message.attachments[0].blocks)
+    );
     this.logger.debug(data);
+
+    const attachData = botHelper.dataToContextMrkdwn({
+      ts: message.ts,
+      qt: data.qt_id,
+    });
 
     const result = await client.views.open({
       trigger_id: body.trigger_id,
       view: {
-        type: 'modal',
         callback_id: 'qt-approve-confirm',
+        type: 'modal',
         title: {
           type: 'plain_text',
           text: 'Approve',
@@ -59,7 +60,7 @@ export class ApproveAction implements BotFunction {
         },
         submit: {
           type: 'plain_text',
-          text: 'Confirm',
+          text: 'Submit',
           emoji: true,
         },
         close: {
@@ -69,28 +70,47 @@ export class ApproveAction implements BotFunction {
         },
         blocks: [
           {
-            type: 'divider',
-          },
-          {
-            type: 'section',
+            type: 'header',
             text: {
               type: 'plain_text',
-              text: `ใบเสนอราคาเลขที่ ${qtId}`,
-              emoji: true,
+              text: 'ใบเสนอราคาเลขที่ ${qtId}',
             },
           },
           {
-            type: 'section',
-            text: {
-              type: 'plain_text',
-              text: `ต้องการยอมรับหรือไม่`,
-              emoji: true,
-            },
+            type: 'context',
+            elements: [
+              {
+                type: 'mrkdwn',
+                text: 'ชื่อ: `${contact.name}`',
+              },
+              {
+                type: 'mrkdwn',
+                text: 'บริษัท: `${contact.company}`',
+              },
+              {
+                type: 'mrkdwn',
+                text: 'เบอร์: `${contact.phone}`',
+              },
+              {
+                type: 'mrkdwn',
+                text: 'อีเมล: `${contact.email}`',
+              },
+            ],
           },
           {
-            type: 'divider',
+            type: 'context',
+            elements: [
+              {
+                type: 'mrkdwn',
+                text: 'ยอดชำระ: `${price}`',
+              },
+              {
+                type: 'mrkdwn',
+                text: 'Sale: `${sale}`',
+              },
+            ],
           },
-          ...data,
+          ...attachData,
         ],
       },
     });
