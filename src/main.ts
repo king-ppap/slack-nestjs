@@ -21,12 +21,11 @@ async function bootstrap() {
   app.enableCors();
 
   // Swagger
-  const title = 'Livingmobile Slack';
+  const title = 'Livingmobile Bot';
   const config = new DocumentBuilder()
     .setTitle(title)
-    .setDescription('The Slack bot API')
+    .setDescription(title)
     .setVersion('1.0')
-    .addTag('livingmobile')
     .build();
   const customSwaggerOptions: SwaggerCustomOptions = {
     swaggerOptions: {
@@ -35,7 +34,7 @@ async function bootstrap() {
     customSiteTitle: title,
   };
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document, customSwaggerOptions);
+  SwaggerModule.setup('swagger', app, document, customSwaggerOptions);
 
   // Auto-validation
   app.useGlobalPipes(new ValidationPipe());
