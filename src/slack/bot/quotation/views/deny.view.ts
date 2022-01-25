@@ -4,6 +4,7 @@ import {
   GenericMessageEvent,
   SlackViewMiddlewareArgs,
 } from '@slack/bolt';
+import BotHelper from '../../utils/bot.helper';
 import { BotFunction, BotFunctionType } from '../../utils/bot.interface';
 
 @Injectable()
@@ -31,29 +32,26 @@ export class DenyConfirmView implements BotFunction {
     body,
     client,
   }: SlackViewMiddlewareArgs & AllMiddlewareArgs) {
-    // const message = <GenericMessageEvent>body.message;
-    this.logger.debug(body.view.title);
-    const ts = body.view.blocks[2].text;
-    this.logger.debug(ts, process.env.QT_CHANEL_ID);
+    const blocks = <Array<any>>body.view.blocks;
+    this.logger.debug(blocks[blocks.length - 1]);
+
+    const data = new BotHelper().getDataFromMessage(blocks);
+    this.logger.debug(data.ts, process.env.QT_CHANEL_ID);
     try {
-      // Call the conversations.history method using the built-in WebClient
       const result = await client.conversations.history({
         channel: process.env.QT_CHANEL_ID,
-        // In a more realistic app, you may store ts data in a db
-        latest: ts,
-        // Limit results
+        // TODO In a more realistic app, you may store ts data in a db
+        latest: data.ts,
         inclusive: true,
         limit: 1,
       });
 
-      // There should only be one result (stored in the zeroth index)
       const message = <GenericMessageEvent>(<unknown>result.messages[0]);
-      // Print message text
       this.logger.debug(message.text);
 
       await client.chat.update({
         channel: process.env.QT_CHANEL_ID,
-        ts: ts,
+        ts: data.ts,
         text: message.text,
         attachments: [
           {
@@ -61,7 +59,7 @@ export class DenyConfirmView implements BotFunction {
             blocks: [
               ...message.attachments[0].blocks.slice(
                 0,
-                message.attachments[0].blocks.length - 1,
+                message.attachments[0].blocks.length - 3,
               ),
             ],
           },

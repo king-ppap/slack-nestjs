@@ -59,6 +59,9 @@ export default class BotHelper {
   public dataToContextMrkdwn(data: any): Array<any> {
     return [
       {
+        type: 'divider',
+      },
+      {
         type: 'context',
         elements: [
           {

@@ -5,6 +5,7 @@ import {
   GenericMessageEvent,
   SlackActionMiddlewareArgs,
 } from '@slack/bolt';
+import BotHelper from '../../utils/bot.helper';
 import { BotFunction, BotFunctionType } from '../../utils/bot.interface';
 
 @Injectable()
@@ -23,7 +24,12 @@ export class DenyAction implements BotFunction {
   }: SlackActionMiddlewareArgs<BlockAction> & AllMiddlewareArgs) {
     try {
       const message = <GenericMessageEvent>body.message;
-      const qtId = new Date().toISOString();
+      const qtNumber = new Date().toISOString();
+
+      const data = new BotHelper().dataToContextMrkdwn({
+        ts: message.ts,
+        qt: qtNumber,
+      });
 
       // Call views.open with the built-in client
       const result = await client.views.open({
@@ -31,53 +37,65 @@ export class DenyAction implements BotFunction {
         // View payload
         view: {
           type: 'modal',
-          // View identifier
           callback_id: 'qt-deny-confirm',
           title: {
             type: 'plain_text',
             text: 'Deny',
+            emoji: true,
           },
           submit: {
             type: 'plain_text',
             text: 'Submit',
+            emoji: true,
+          },
+          close: {
+            type: 'plain_text',
+            text: 'Cancel',
+            emoji: true,
           },
           blocks: [
             {
-              type: 'section',
+              type: 'header',
               text: {
-                type: 'mrkdwn',
-                text: 'Welcome to a modal with _blocks_',
+                type: 'plain_text',
+                text: 'ใบเสนอราคาเลขที่ ${qtId}',
               },
-              accessory: {
-                type: 'button',
-                text: {
-                  type: 'plain_text',
-                  text: 'Click me!',
+            },
+            {
+              type: 'context',
+              elements: [
+                {
+                  type: 'mrkdwn',
+                  text: 'ชื่อ: `${contact.name}`',
                 },
-                action_id: 'button_abc',
-              },
+                {
+                  type: 'mrkdwn',
+                  text: 'บริษัท: `${contact.company}`',
+                },
+                {
+                  type: 'mrkdwn',
+                  text: 'เบอร์: `${contact.phone}`',
+                },
+                {
+                  type: 'mrkdwn',
+                  text: 'อีเมล: `${contact.email}`',
+                },
+              ],
             },
             {
-              type: 'input',
-              block_id: 'input_c',
-              label: {
-                type: 'plain_text',
-                text: 'What are your hopes and dreams?',
-              },
-              element: {
-                type: 'plain_text_input',
-                action_id: 'dreamy_input',
-                multiline: true,
-              },
+              type: 'context',
+              elements: [
+                {
+                  type: 'mrkdwn',
+                  text: 'ยอดชำระ: `${price}`',
+                },
+                {
+                  type: 'mrkdwn',
+                  text: 'Sale: `${sale}`',
+                },
+              ],
             },
-            {
-              type: 'section',
-              text: {
-                type: 'plain_text',
-                text: message.ts,
-                emoji: true,
-              },
-            },
+            ...data,
           ],
         },
       });
