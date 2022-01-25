@@ -21,7 +21,6 @@ export class SlackApiController {
   async sendMessageApproveQuotation(
     @Body() quotation: SendMessageQuotationDto,
   ) {
-    const qtId = quotation.qt_id;
-    await this.slackApiService.sendMessageApproveQuotation(qtId);
+    await this.slackApiService.sendMessageApproveQuotation(quotation);
   }
 }
