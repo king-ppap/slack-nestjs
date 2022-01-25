@@ -46,7 +46,7 @@ export class ApproveAction implements BotFunction {
 
     const attachData = botHelper.dataToContextMrkdwn({
       ts: message.ts,
-      qt: qtData.qt_id,
+      qt_id: qtData.qt_id,
     });
 
     const result = await client.views.open({
