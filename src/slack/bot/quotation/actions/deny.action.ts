@@ -1,15 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
   AllMiddlewareArgs,
   BlockAction,
   GenericMessageEvent,
   SlackActionMiddlewareArgs,
 } from '@slack/bolt';
+import { DateTime } from 'luxon';
+import { SendMessageQuotationViewDto } from 'src/slack-api/dto/quotation.dto';
 import BotHelper from '../../utils/bot.helper';
 import { BotFunction, BotFunctionType } from '../../utils/bot.interface';
 
 @Injectable()
 export class DenyAction implements BotFunction {
+  private readonly logger = new Logger(DenyAction.name);
+
   public readonly help = {
     id: 'qt-deny',
     type: BotFunctionType.ACTION,
@@ -24,11 +28,16 @@ export class DenyAction implements BotFunction {
   }: SlackActionMiddlewareArgs<BlockAction> & AllMiddlewareArgs) {
     try {
       const message = <GenericMessageEvent>body.message;
-      const qtNumber = new Date().toISOString();
 
-      const data = new BotHelper().dataToContextMrkdwn({
+      const botHelper = new BotHelper();
+      const qtData = <SendMessageQuotationViewDto>(
+        botHelper.getDataFromMessage(message.attachments[0].blocks)
+      );
+      this.logger.debug(qtData);
+
+      const attachData = botHelper.dataToContextMrkdwn({
         ts: message.ts,
-        qt: qtNumber,
+        qt: qtData.qt_id,
       });
 
       // Call views.open with the built-in client
@@ -58,7 +67,15 @@ export class DenyAction implements BotFunction {
               type: 'header',
               text: {
                 type: 'plain_text',
-                text: 'ใบเสนอราคาเลขที่ ${qtId}',
+                text: `ปฏิเสธ ใบเสนอราคาเลขที่ ${qtData.qt_number}`,
+              },
+            },
+            {
+              type: 'header',
+              text: {
+                type: 'plain_text',
+                text: `${qtData.contact.restaurant_name}`,
+                emoji: true,
               },
             },
             {
@@ -66,19 +83,19 @@ export class DenyAction implements BotFunction {
               elements: [
                 {
                   type: 'mrkdwn',
-                  text: 'ชื่อ: `${contact.name}`',
+                  text: `ชื่อ: \`${qtData.contact.name}\``,
                 },
                 {
                   type: 'mrkdwn',
-                  text: 'บริษัท: `${contact.company}`',
+                  text: `บริษัท: \`${qtData.contact.company}\``,
                 },
                 {
                   type: 'mrkdwn',
-                  text: 'เบอร์: `${contact.phone}`',
+                  text: `เบอร์: \`${qtData.contact.phone}\``,
                 },
                 {
                   type: 'mrkdwn',
-                  text: 'อีเมล: `${contact.email}`',
+                  text: `อีเมล: \`${qtData.contact.email}\``,
                 },
               ],
             },
@@ -87,15 +104,41 @@ export class DenyAction implements BotFunction {
               elements: [
                 {
                   type: 'mrkdwn',
-                  text: 'ยอดชำระ: `${price}`',
+                  text: `ยอดชำระ: \`${qtData.price}\``,
                 },
                 {
                   type: 'mrkdwn',
-                  text: 'Sale: `${sale}`',
+                  text: `เครดิต (วัน): \`${qtData.credit}\``,
+                },
+                {
+                  type: 'mrkdwn',
+                  text: `วันที่ชำระ: \`${DateTime.fromISO(
+                    qtData.credit_due_date,
+                  ).toFormat('dd LLLL yyyy TT')}\``,
+                },
+                {
+                  type: 'mrkdwn',
+                  text: `Sale: \`${qtData.sale}\``,
                 },
               ],
             },
-            ...data,
+            {
+              type: 'divider',
+            },
+            {
+              type: 'input',
+              element: {
+                type: 'plain_text_input',
+                multiline: true,
+                action_id: 'plain_text_input-action',
+              },
+              label: {
+                type: 'plain_text',
+                text: 'เนื่องจาก',
+                emoji: true,
+              },
+            },
+            ...attachData,
           ],
         },
       });

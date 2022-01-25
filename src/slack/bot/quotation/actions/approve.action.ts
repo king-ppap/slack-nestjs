@@ -5,6 +5,7 @@ import {
   GenericMessageEvent,
   SlackActionMiddlewareArgs,
 } from '@slack/bolt';
+import { DateTime } from 'luxon';
 import { SendMessageQuotationViewDto } from 'src/slack-api/dto/quotation.dto';
 import BotHelper from '../../utils/bot.helper';
 import { BotFunction, BotFunctionType } from '../../utils/bot.interface';
@@ -38,14 +39,14 @@ export class ApproveAction implements BotFunction {
     this.logger.debug(JSON.stringify(message.attachments[0], null, '  '));
 
     const botHelper = new BotHelper();
-    const data = <SendMessageQuotationViewDto>(
+    const qtData = <SendMessageQuotationViewDto>(
       botHelper.getDataFromMessage(message.attachments[0].blocks)
     );
-    this.logger.debug(data);
+    this.logger.debug(qtData);
 
     const attachData = botHelper.dataToContextMrkdwn({
       ts: message.ts,
-      qt: data.qt_id,
+      qt: qtData.qt_id,
     });
 
     const result = await client.views.open({
@@ -73,7 +74,15 @@ export class ApproveAction implements BotFunction {
             type: 'header',
             text: {
               type: 'plain_text',
-              text: 'ใบเสนอราคาเลขที่ ${qtId}',
+              text: `ยอมรับ ใบเสนอราคาเลขที่ ${qtData.qt_number}`,
+            },
+          },
+          {
+            type: 'header',
+            text: {
+              type: 'plain_text',
+              text: `${qtData.contact.restaurant_name}`,
+              emoji: true,
             },
           },
           {
@@ -81,19 +90,19 @@ export class ApproveAction implements BotFunction {
             elements: [
               {
                 type: 'mrkdwn',
-                text: 'ชื่อ: `${contact.name}`',
+                text: `ชื่อ: \`${qtData.contact.name}\``,
               },
               {
                 type: 'mrkdwn',
-                text: 'บริษัท: `${contact.company}`',
+                text: `บริษัท: \`${qtData.contact.company}\``,
               },
               {
                 type: 'mrkdwn',
-                text: 'เบอร์: `${contact.phone}`',
+                text: `เบอร์: \`${qtData.contact.phone}\``,
               },
               {
                 type: 'mrkdwn',
-                text: 'อีเมล: `${contact.email}`',
+                text: `อีเมล: \`${qtData.contact.email}\``,
               },
             ],
           },
@@ -102,11 +111,21 @@ export class ApproveAction implements BotFunction {
             elements: [
               {
                 type: 'mrkdwn',
-                text: 'ยอดชำระ: `${price}`',
+                text: `ยอดชำระ: \`${qtData.price}\``,
               },
               {
                 type: 'mrkdwn',
-                text: 'Sale: `${sale}`',
+                text: `เครดิต (วัน): \`${qtData.credit}\``,
+              },
+              {
+                type: 'mrkdwn',
+                text: `วันที่ชำระ: \`${DateTime.fromISO(
+                  qtData.credit_due_date,
+                ).toFormat('dd LLLL yyyy TT')}\``,
+              },
+              {
+                type: 'mrkdwn',
+                text: `Sale: \`${qtData.sale}\``,
               },
             ],
           },
