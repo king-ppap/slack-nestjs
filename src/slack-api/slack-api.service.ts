@@ -1,16 +1,23 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import BotHelper from 'src/slack/bot/utils/bot.helper';
 import { SlackService } from 'src/slack/slack.service';
 import { SendMessageQuotationDto } from './dto/quotation.dto';
+import { DateTime } from 'luxon';
 
 @Injectable()
 export class SlackApiService {
+  private logger = new Logger(SlackApiService.name);
   constructor(private slackBotService: SlackService) {}
 
   public sendMessageApproveQuotation(qtData: SendMessageQuotationDto) {
+    this.logger.debug(qtData);
     return this.slackBotService.appSlack.client.chat.postMessage({
       channel: process.env.QT_CHANEL_ID,
-      text: `<https://int.fs-sandbox.com/qtdoc/${qtData.qt_id}|ใบเสนอราคาเลขที่ ${qtData.qt_number}>`,
+      text: `*<https://int.fs-sandbox.com/qtdoc/${
+        qtData.qt_id
+      }|ใบเสนอราคาเลขที่ ${qtData.qt_number}> ${DateTime.fromISO(
+        qtData.create_dt,
+      ).toFormat('dd LLLL yyyy TT')}*`,
       attachments: [
         {
           color: '#F2C94C',
@@ -57,6 +64,16 @@ export class SlackApiService {
                 {
                   type: 'mrkdwn',
                   text: `ยอดชำระ: \`${qtData.price}\``,
+                },
+                {
+                  type: 'mrkdwn',
+                  text: `เครดิต (วัน): \`${qtData.credit}\``,
+                },
+                {
+                  type: 'mrkdwn',
+                  text: `วันที่ชำระ: \`${DateTime.fromISO(
+                    qtData.credit_due_date,
+                  ).toFormat('dd LLLL yyyy TT')}\``,
                 },
                 {
                   type: 'mrkdwn',
