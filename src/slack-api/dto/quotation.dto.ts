@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Matches } from 'class-validator';
+import { IsDateString, Matches } from 'class-validator';
 
-class ContactInterfaceDto {
+class ContactDto {
   @ApiProperty()
   restaurant_name: string;
 
@@ -27,13 +27,24 @@ export class SendMessageQuotationDto {
   qt_number: string;
 
   @ApiProperty()
-  contact: ContactInterfaceDto;
+  @IsDateString()
+  create_dt: string;
+
+  @ApiProperty()
+  contact: ContactDto;
 
   @ApiProperty()
   price: number;
 
   @ApiProperty()
   sale: string;
+
+  @ApiProperty()
+  credit: number;
+
+  @ApiProperty()
+  @IsDateString()
+  credit_due_date: string;
 }
 
 export class SendMessageQuotationViewDto extends SendMessageQuotationDto {
