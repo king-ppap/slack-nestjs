@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { SlackService } from 'src/slack/slack.service';
+import { SendMessageQuotationDto } from './dto/quotation.dto';
 
 @Injectable()
 export class SlackApiService {
   constructor(private slackBotService: SlackService) {}
 
-  public sendMessageApproveQuotation(qtId: string) {
+  public sendMessageApproveQuotation(qtData: SendMessageQuotationDto) {
     return this.slackBotService.appSlack.client.chat.postMessage({
       channel: process.env.QT_CHANEL_ID,
-      text: `ใบเสนอราคาเลขที่ ${qtId}`,
+      text: `<https://int.fs-sandbox.com/qtdoc/${qtData.qt_id}|ใบเสนอราคาเลขที่ ${qtData.qt_number}>`,
       attachments: [
         {
           color: '#F2C94C',
@@ -17,14 +18,14 @@ export class SlackApiService {
               type: 'header',
               text: {
                 type: 'plain_text',
-                text: 'ใบเสนอราคาเลขที่ ${qtId}',
+                text: `ใบเสนอราคาเลขที่ ${qtData.qt_number}`,
               },
             },
             {
               type: 'header',
               text: {
                 type: 'plain_text',
-                text: '${contact.restaurant_name}',
+                text: `${qtData.contact.restaurant_name}`,
                 emoji: true,
               },
             },
@@ -33,19 +34,19 @@ export class SlackApiService {
               elements: [
                 {
                   type: 'mrkdwn',
-                  text: 'ชื่อ: `${contact.name}`',
+                  text: `ชื่อ: \`${qtData.contact.name}\``,
                 },
                 {
                   type: 'mrkdwn',
-                  text: 'บริษัท: `${contact.company}`',
+                  text: `บริษัท: \`${qtData.contact.company}\``,
                 },
                 {
                   type: 'mrkdwn',
-                  text: 'เบอร์: `${contact.phone}`',
+                  text: `เบอร์: \`${qtData.contact.phone}\``,
                 },
                 {
                   type: 'mrkdwn',
-                  text: 'อีเมล: `${contact.email}`',
+                  text: `อีเมล: \`${qtData.contact.email}\``,
                 },
               ],
             },
@@ -54,11 +55,11 @@ export class SlackApiService {
               elements: [
                 {
                   type: 'mrkdwn',
-                  text: 'ยอดชำระ: `${price}`',
+                  text: `ยอดชำระ: \`${qtData.price}\``,
                 },
                 {
                   type: 'mrkdwn',
-                  text: 'Sale: `${sale}`',
+                  text: `Sale: \`${qtData.sale}\``,
                 },
               ],
             },
