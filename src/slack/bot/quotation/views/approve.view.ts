@@ -58,6 +58,7 @@ export class ApproveConfirmView implements BotFunction {
       await client.chat.update({
         channel: process.env.QT_CHANEL_ID,
         ts: data.ts,
+        text: message.text,
         attachments: [
           {
             color: '#67C23A',

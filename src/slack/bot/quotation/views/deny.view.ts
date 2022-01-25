@@ -54,6 +54,7 @@ export class DenyConfirmView implements BotFunction {
       await client.chat.update({
         channel: process.env.QT_CHANEL_ID,
         ts: ts,
+        text: message.text,
         attachments: [
           {
             color: '#F56C6C',
